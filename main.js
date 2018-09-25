@@ -10,9 +10,10 @@ const app=express();
 
 const sqlFindAllFilms = "SELECT * FROM film";
 
-const sqlFindOneFilm = "SELECT film_id, title FROM film WHERE film_id=?";
+const sqlFindOneFilm = "SELECT film_id, title FROM film WHERE film_id=?"; //"?" is subtituted by args, passed in line 74 through filmId
 
 
+//Takes value from .env file
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -23,9 +24,9 @@ const pool = mysql.createPool({
 })
 
 
+//Create a reuseable function to query MySQL, wraps around with Promise
 var makeQuery = (sql, pool)=>{
-    console.log(sql);
-//    console.log(pool);
+    console.log("SQL statement >>> ",sql);
 
     return  (args)=>{
         let queryPromise = new Promise((resolve,reject)=>{
