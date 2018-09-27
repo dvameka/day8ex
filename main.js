@@ -4,13 +4,18 @@ require('dotenv').config()
 const express = require('express');
 const path = require('path');
 const mysql = require('mysql');
+var cors = require('cors');
+
 
 //create an instance of express
 const app=express();
+app.use(cors());
 
-const sqlFindAllFilms = "SELECT * FROM film";
+const sqlAllFilms = "SELECT * FROM film";
 
 const sqlFindOneFilm = "SELECT film_id, title FROM film WHERE film_id=?"; //"?" is subtituted by args, passed in line 74 through filmId
+
+const sqlFindFilms = "SELECT film_id, title FROM film WHERE title LIKE ?"; 
 
 
 //Takes value from .env file
@@ -52,20 +57,33 @@ var makeQuery = (sql, pool)=>{
     }
 }
 
-var findAllFilms = makeQuery(sqlFindAllFilms, pool);
+var allFilms = makeQuery(sqlAllFilms, pool);
 var findOneFilmById = makeQuery(sqlFindOneFilm, pool);
+var findFilms = makeQuery(sqlFindFilms, pool);
+
 
 //create routes
 app.get('/films',(req,res)=>{
 
-    findAllFilms().then((results)=>{
+        let filmTitle = req.query.title;
+        console.log("filmtitle search>>> ", filmTitle);
+        findFilms(filmTitle).then((results)=>{
+            res.json(results);
+        }).catch((error)=>{
+            console.log(error);
+            res.status(500).json(error);
+        });
+    
+/*
+    allFilms().then((results)=>{
         res.json(results);
     }).catch((error)=>{
         console.log(error);
         res.status(500).json(error);
     });
-
+*/
 });
+
 
 app.get("/films/:filmId", (req, res)=>{
     console.log("/film params !");
